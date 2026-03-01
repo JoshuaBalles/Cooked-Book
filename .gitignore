@@ -1,4 +1,8 @@
 # Byte-compiled / optimized / DLL files
+
+# Node.js dependencies
+node_modules/
+package-lock.json
 __pycache__/
 *.py[codz]
 *$py.class

@@ -1,4 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -12,12 +15,23 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# Get absolute paths for static files and templates
+BASE_DIR = Path(__file__).parent.parent
+static_dir = BASE_DIR / "static"
+templates_dir = BASE_DIR / "templates"
+
+# Serve static files (CSS, JS, images)
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+# Setup Jinja2 templates
+templates = Jinja2Templates(directory=str(templates_dir))
+
 # ================== API ENDPOINTS ==================
 
-# 1. GET / - Root endpoint
+# 1. GET / - Root endpoint (serves frontend)
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to Cooked-Book API!"}
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 # 2. POST /recipes/ - Create a new recipe
 @app.post("/recipes/", response_model=Recipe)
